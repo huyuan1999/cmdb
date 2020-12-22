@@ -1,11 +1,13 @@
 package utils
 
 import (
+	"fmt"
 	"os"
+	"reflect"
 	"regexp"
+	"strings"
 )
 
-// 判断路径是否存在
 func Exists(path string) bool {
 	_, err := os.Stat(path)
 	if err != nil {
@@ -17,7 +19,6 @@ func Exists(path string) bool {
 	return true
 }
 
-// 判断路径是否存在, 且为目录
 func IsDir(path string) bool {
 	s, err := os.Stat(path)
 	if err != nil {
@@ -26,7 +27,6 @@ func IsDir(path string) bool {
 	return s.IsDir()
 }
 
-// 判断路径是否存在, 且为文件
 func IsFile(path string) bool {
 	if Exists(path) {
 		return !IsDir(path)
@@ -55,4 +55,39 @@ func LoopMatchString(s string, matchArray []string) (string, error) {
 		s = compile.FindString(s)
 	}
 	return s, nil
+}
+
+func Trim(old string) string {
+	return strings.Trim(strings.Trim(strings.Trim(old, "\n"), "\t"), " ")
+}
+
+func DeleteExtraSpace(s string) string {
+	s1 := strings.Replace(s, "  ", " ", -1)
+	regstr := "\\s{2,}"
+	reg, _ := regexp.Compile(regstr)
+	s2 := make([]byte, len(s1))
+	copy(s2, s1)
+	spc_index := reg.FindStringIndex(string(s2))
+	for len(spc_index) > 0 {
+		s2 = append(s2[:spc_index[0]+1], s2[spc_index[1]:]...)
+		spc_index = reg.FindStringIndex(string(s2))
+	}
+	return string(s2)
+}
+
+func Dmidecode() (string, error) {
+	shell := Shell("dmidecode")
+	if shell.Err != nil {
+		return "", shell.Err
+	} else if shell.Code != 0 {
+		return "", fmt.Errorf("stdout: %s stderr: %s", shell.Stdout, shell.Stderr)
+	}
+	return shell.Stdout, nil
+}
+
+func Call(i interface{}) {
+	value := reflect.ValueOf(i)
+	for index := 0; index < value.NumMethod(); index++ {
+		value.Method(index).Call([]reflect.Value{})
+	}
 }

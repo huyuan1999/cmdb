@@ -1,7 +1,7 @@
-package client
+package Linux
 
 import (
-	"cmdb/models"
+	"cmdb/st"
 	"cmdb/utils"
 	"io/ioutil"
 	"regexp"
@@ -10,22 +10,25 @@ import (
 )
 
 type CPU struct {
-	models.CPU
+	st.CPU
 	document string
 }
 
-func NewCPU(path string) (*CPU, error) {
+const cpuinfo = "/proc/cpuinfo"
+
+func NewCPU() (*CPU, error) {
 	cpu := &CPU{}
-	text, err := ioutil.ReadFile(path)
+	text, err := ioutil.ReadFile(cpuinfo)
 	if err != nil {
 		return nil, err
 	}
 	cpu.document = string(text)
+	utils.Call(cpu)
 	return cpu, nil
 }
 
 func (c *CPU) GetNumber() {
-	compile, err := regexp.Compile("physical id.*")
+	compile, err := regexp.Compile("physical\\s+id.*")
 	if err != nil {
 		return
 	}
@@ -34,7 +37,7 @@ func (c *CPU) GetNumber() {
 }
 
 func (c *CPU) GetCore() {
-	matched, err := utils.LoopMatchString(c.document, []string{"cpu cores.*", "\\d+"})
+	matched, err := utils.LoopMatchString(c.document, []string{"cpu\\s+cores.*", "\\d+"})
 	if err != nil {
 		return
 	}
@@ -62,7 +65,7 @@ func (c *CPU) GetProcessor() {
 }
 
 func (c *CPU) GetModelName() {
-	compile, err := regexp.Compile("model name.*")
+	compile, err := regexp.Compile("model\\s+name.*")
 	if err != nil {
 		return
 	}
@@ -70,6 +73,6 @@ func (c *CPU) GetModelName() {
 
 	modelArr := strings.Split(modelName, ":")
 	if len(modelArr) == 2 {
-		c.ModelName = strings.Trim(modelArr[1], " ")
+		c.ModelName = utils.Trim(modelArr[1])
 	}
 }
