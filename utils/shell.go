@@ -1,8 +1,8 @@
 package utils
 
 import (
+	"fmt"
 	"io/ioutil"
-	"log"
 	"os/exec"
 	"syscall"
 )
@@ -17,9 +17,7 @@ type ShellResult struct {
 
 func Shell(command string, args ...string) *ShellResult {
 	result := &ShellResult{}
-
 	cmd := exec.Command(command, args...)
-
 	stdoutP, _ := cmd.StdoutPipe()
 	stderrP, _ := cmd.StderrPipe()
 
@@ -27,21 +25,18 @@ func Shell(command string, args ...string) *ShellResult {
 	defer func() { _ = stderrP.Close() }()
 
 	if err := cmd.Start(); err != nil {
-		log.Println("start command err: ", err)
 		result.Err = err
 		return result
 	}
 
 	stdoutResult, err := ioutil.ReadAll(stdoutP)
 	if err != nil {
-		log.Println("read command stdout err: ", err)
 		result.Err = err
 		return result
 	}
 
 	stderrResult, err := ioutil.ReadAll(stderrP)
 	if err != nil {
-		log.Println("read command stdout err: ", err)
 		result.Err = err
 		return result
 	}
@@ -56,4 +51,14 @@ func Shell(command string, args ...string) *ShellResult {
 	result.Stdout = string(stdoutResult)
 	result.Stderr = string(stderrResult)
 	return result
+}
+
+func Which(cmd string) error {
+	result := Shell("which", cmd)
+	if result.Err != nil {
+		return result.Err
+	} else if result.Code != 0 {
+		return fmt.Errorf(`stdout: %s, stdout: %s`, result.Stdout, result.Stderr)
+	}
+	return nil
 }

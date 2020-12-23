@@ -115,3 +115,7 @@ func (d Disk) GetSize() {
 		d[index].Size = uint(size >> 30)
 	}
 }
+
+func (d Disk) GetFormFactor() {
+
+}

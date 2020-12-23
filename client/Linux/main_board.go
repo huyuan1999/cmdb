@@ -3,17 +3,16 @@ package Linux
 import (
 	"cmdb/st"
 	"cmdb/utils"
-	"strings"
 )
 
 type MainBoard struct {
 	st.MainBoard
-	dmidecode string
+	dmidecode *dmidecode
 }
 
 func NewMainBoard() (*MainBoard, error) {
 	mainBoard := &MainBoard{}
-	dmidecode, err := utils.Dmidecode()
+	dmidecode, err := NewDmidecode()
 	if err != nil {
 		return nil, err
 	}
@@ -23,45 +22,17 @@ func NewMainBoard() (*MainBoard, error) {
 }
 
 func (m *MainBoard) GetSerialNumber() {
-	matched, err := utils.LoopMatchString(m.dmidecode, []string{"(?s)(?U)System\\s+Information\\n+.*Handle", "Serial\\s+Number:\\s+.*"})
-	if err != nil {
-		return
-	}
-	split := strings.Split(matched, ":")
-	if len(split) == 2 {
-		m.SerialNumber = utils.Trim(split[1])
-	}
+	m.SerialNumber = m.dmidecode.SystemSerialNumber()
 }
 
 func (m *MainBoard) GetUUID() {
-	matched, err := utils.LoopMatchString(m.dmidecode, []string{"(?s)(?U)System\\s+Information\\n+.*Handle", "UUID:\\s+.*"})
-	if err != nil {
-		return
-	}
-	split := strings.Split(matched, ":")
-	if len(split) == 2 {
-		m.UUID = utils.Trim(split[1])
-	}
+	m.UUID = m.dmidecode.SystemUuid()
 }
 
 func (m *MainBoard) GetManufacturer() {
-	matched, err := utils.LoopMatchString(m.dmidecode, []string{"(?s)(?U)System\\s+Information\\n+.*Handle", "Manufacturer:\\s+.*"})
-	if err != nil {
-		return
-	}
-	split := strings.Split(matched, ":")
-	if len(split) == 2 {
-		m.Manufacturer = utils.Trim(split[1])
-	}
+	m.Manufacturer = m.dmidecode.SystemManufacturer()
 }
 
 func (m *MainBoard) GetProductName() {
-	matched, err := utils.LoopMatchString(m.dmidecode, []string{"(?s)(?U)System\\s+Information\\n+.*Handle", "Product\\s+Name:\\s+.*"})
-	if err != nil {
-		return
-	}
-	split := strings.Split(matched, ":")
-	if len(split) == 2 {
-		m.ProductName = utils.Trim(split[1])
-	}
+	m.ProductName = m.dmidecode.SystemProductName()
 }

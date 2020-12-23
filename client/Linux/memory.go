@@ -10,16 +10,16 @@ import (
 
 type Memory struct {
 	st.Memory
-	dmidecode string
+	dmidecodeInfo string
 }
 
 func NewMemory() (*Memory, error) {
 	memory := &Memory{}
-	dmidecode, err := utils.Dmidecode()
+	dmidecode, err := NewDmidecode()
 	if err != nil {
 		return nil, err
 	}
-	memory.dmidecode = dmidecode
+	memory.dmidecodeInfo = dmidecode.Info()
 	utils.Call(memory)
 	return memory, nil
 }
@@ -33,7 +33,7 @@ func (m *Memory) GetTotal() {
 }
 
 func (m *Memory) GetType() {
-	matched, err := utils.LoopMatchString(m.dmidecode, []string{"(?s)(?U)Memory\\s+Device\\n+.*Memory\\s+Device\\n+", "Type:\\s+.*"})
+	matched, err := utils.LoopMatchString(m.dmidecodeInfo, []string{"(?s)(?U)Memory\\s+Device\\n+.*Memory\\s+Device\\n+", "Type:\\s+.*"})
 	if err != nil {
 		return
 	}
@@ -48,7 +48,7 @@ func (m *Memory) GetNumber() {
 	if err != nil {
 		return
 	}
-	matched := compile.FindAllString(m.dmidecode, -1)
+	matched := compile.FindAllString(m.dmidecodeInfo, -1)
 	m.Number = uint(len(matched))
 }
 
@@ -57,7 +57,7 @@ func (m *Memory) GetSlot() {
 	if err != nil {
 		return
 	}
-	memInfo := compile.FindString(m.dmidecode)
+	memInfo := compile.FindString(m.dmidecodeInfo)
 	re, err := regexp.Compile("Size:\\s.*")
 	if err != nil {
 		return
@@ -67,7 +67,7 @@ func (m *Memory) GetSlot() {
 }
 
 func (m *Memory) GetMaxSize() {
-	matched, err := utils.LoopMatchString(m.dmidecode, []string{"Maximum\\sCapacity:.*", "\\d+\\s+GB"})
+	matched, err := utils.LoopMatchString(m.dmidecodeInfo, []string{"Maximum\\sCapacity:.*", "\\d+\\s+GB"})
 	if err != nil {
 		return
 	}
@@ -80,6 +80,6 @@ func (m *Memory) GetFreeSlot() {
 		return
 	}
 
-	slot := compile.FindAllString(m.dmidecode, -1)
+	slot := compile.FindAllString(m.dmidecodeInfo, -1)
 	m.FreeSlot = uint(len(slot))
 }

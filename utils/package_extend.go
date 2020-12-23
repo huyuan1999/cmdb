@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"os"
 	"reflect"
 	"regexp"
@@ -73,16 +72,6 @@ func DeleteExtraSpace(s string) string {
 		spc_index = reg.FindStringIndex(string(s2))
 	}
 	return string(s2)
-}
-
-func Dmidecode() (string, error) {
-	shell := Shell("dmidecode")
-	if shell.Err != nil {
-		return "", shell.Err
-	} else if shell.Code != 0 {
-		return "", fmt.Errorf("stdout: %s stderr: %s", shell.Stdout, shell.Stderr)
-	}
-	return shell.Stdout, nil
 }
 
 func Call(i interface{}) {
