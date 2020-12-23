@@ -24,11 +24,11 @@ const diskstats = "/proc/diskstats"
 
 func isDisk(array []string) (diskArray []string) {
 	for _, base := range array {
-		for _, item := range array {
-			if item == base {
+		for _, dev := range array {
+			if dev == base {
 				continue
 			}
-			if strings.HasPrefix(item, base) {
+			if strings.HasPrefix(dev, base) {
 				diskArray = append(diskArray, base)
 				goto loop
 			}
@@ -50,8 +50,8 @@ func NewDisk() (Disk, error) {
 
 	diskArr := compile.FindAllString(string(text), -1)
 	var nameArr []string
-	for _, item := range diskArr {
-		split := strings.Split(utils.DeleteExtraSpace(utils.Trim(item)), " ")
+	for _, dev := range diskArr {
+		split := strings.Split(utils.DeleteExtraSpace(utils.Trim(dev)), " ")
 		if len(split) >= 3 {
 			name := path.Join("/dev/", split[2])
 			nameArr = append(nameArr, name)
@@ -70,14 +70,14 @@ func NewDisk() (Disk, error) {
 }
 
 func (d Disk) GetName() {
-	for index, item := range d[0].diskNameArr {
-		d[index].Name = item
+	for index, dev := range d[0].diskNameArr {
+		d[index].Name = dev
 	}
 }
 
 func (d Disk) GetSerialNumber() {
-	for index, item := range d[0].diskNameArr {
-		serial, err := disk.SerialNumber(item)
+	for index, dev := range d[0].diskNameArr {
+		serial, err := disk.SerialNumber(dev)
 		if err != nil || serial == "" {
 			continue
 		}
@@ -88,8 +88,8 @@ func (d Disk) GetSerialNumber() {
 }
 
 func (d Disk) GetManufacturer() {
-	for index, item := range d[0].diskNameArr {
-		serial, err := disk.SerialNumber(item)
+	for index, dev := range d[0].diskNameArr {
+		serial, err := disk.SerialNumber(dev)
 		if err != nil || serial == "" {
 			continue
 		}
@@ -103,8 +103,8 @@ func (d Disk) GetManufacturer() {
 
 func (d Disk) GetSize() {
 	var size uint64
-	for index, item := range d[0].diskNameArr {
-		fd, err := unix.Open(item, os.O_RDONLY, 0660)
+	for index, dev := range d[0].diskNameArr {
+		fd, err := unix.Open(dev, os.O_RDONLY, 0660)
 		if err != nil {
 			continue
 		}
