@@ -48,7 +48,7 @@ type NIC struct {
 type Disk struct {
 	Name         string `json:"name"`
 	SerialNumber string `json:"serial_number"`
-	Manufacturer string `json:"manufacturer"`
+	ProductName  string `json:"product_name"`
 	Size         uint   `json:"size"`
 	FormFactor   string `json:"form_factor"`
 }

@@ -1,18 +1,19 @@
 package Linux
 
 import (
+	"cmdb/client/Linux/command"
 	"cmdb/st"
 	"cmdb/utils"
 )
 
 type MainBoard struct {
 	st.MainBoard
-	dmidecode *dmidecode
+	dmidecode *command.Dmidecode
 }
 
 func NewMainBoard() (*MainBoard, error) {
 	mainBoard := &MainBoard{}
-	dmidecode, err := NewDmidecode()
+	dmidecode, err := command.NewDmidecode()
 	if err != nil {
 		return nil, err
 	}

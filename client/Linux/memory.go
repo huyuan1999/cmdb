@@ -1,6 +1,7 @@
 package Linux
 
 import (
+	"cmdb/client/Linux/command"
 	"cmdb/st"
 	"cmdb/utils"
 	"github.com/shirou/gopsutil/mem"
@@ -15,7 +16,7 @@ type Memory struct {
 
 func NewMemory() (*Memory, error) {
 	memory := &Memory{}
-	dmidecode, err := NewDmidecode()
+	dmidecode, err := command.NewDmidecode()
 	if err != nil {
 		return nil, err
 	}
